@@ -6,7 +6,7 @@
 
 У попередніх лекціях ми розв'язували задачу розрахунку усталеного режиму: маючи дані про мережу та навантаження, ми знаходили напруги та потоки. Однак, в реальності існує безліч допустимих режимів, і завжди стоїть задача обрати **найкращий (оптимальний)** з них.
 
-> **Нотатка від професора: Розрахунок vs. Оптимізація (Аналогія з GPS)**
+> **Нотатка: Розрахунок vs. Оптимізація (Аналогія з GPS)**
 >
 > *   **Розрахунок режиму** — це як відповідь на питання: "Якщо я поїду з точки А в точку Б цим конкретним маршрутом, скільки часу це займе і скільки палива я витрачу?". Ми аналізуємо один заданий сценарій.
 > *   **Оптимізація режиму** — це робота самого GPS-навігатора. Він аналізує *всі можливі* маршрути і знаходить той, який є найкращим за певним критерієм (найшвидший, найкоротший, з найменшою витратою палива), при цьому враховуючи обмеження (наприклад, не їхати по зустрічній смузі).
@@ -83,7 +83,7 @@ public class Program
         });
 
         // Вектор напруг (припустимо, що режим вже розраховано)
-        var U = Vector<Complex>.Build.DenseOfArray(new[] {
+        var U = MathNet.Numerics.LinearAlgebra.Vector<Complex>.Build.DenseOfArray(new[] {
             Complex.FromPolarCoordinates(1.02, 0),
             Complex.FromPolarCoordinates(0.98, -3.5 * Math.PI / 180),
             Complex.FromPolarCoordinates(0.97, -4.1 * Math.PI / 180)
@@ -99,7 +99,7 @@ public class Program
     /// <summary>
     /// Розраховує сумарні втрати в мережі за методом інжекцій.
     /// </summary>
-    public static (double Ploss, double Qloss) CalculateTotalLosses(Matrix<Complex> yBus, Vector<Complex> voltages)
+    public static (double Ploss, double Qloss) CalculateTotalLosses(Matrix<Complex> yBus, MathNet.Numerics.LinearAlgebra.Vector<Complex> voltages)
     {
         // Розраховуємо вектор вузлових струмів: I = Y * U
         var I_injections = yBus.Multiply(voltages);
