@@ -106,7 +106,7 @@ public class Program
 
             // --- Крок 1: Розрахунок нев'язок (ΔP, ΔQ) ---
             var I2_calc = YMatrix[1, 0] * U1 + YMatrix[1, 1] * U2;
-            var S2_calc = U2 * I2_calc.Conjugate();
+            var S2_calc = U2 * Complex.Conjugate(I2_calc);
 
             double dP = P2_spec - S2_calc.Real;
             double dQ = Q2_spec - S2_calc.Imaginary;
@@ -138,7 +138,7 @@ public class Program
             double J22 = -2 * V2 * B22 + U1.Magnitude * (G21 * Math.Sin(d2 - U1.Phase) - B21 * Math.Cos(d2 - U1.Phase));
 
             var J = Matrix<double>.Build.DenseOfArray(new double[,] { { J11, J12 }, { J21, J22 } });
-            var mismatchVector = Vector<double>.Build.Dense(new[] { dP, dQ });
+            var mismatchVector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(new[] { dP, dQ });
 
             // --- Крок 4: Розв'язання СЛАР та оновлення змінних ---
             // Знаходимо поправки [dDelta, dV] = J.Solve([dP, dQ])
