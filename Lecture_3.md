@@ -40,7 +40,7 @@ J  =  |-----------------|
 
 > **Увага:** У формулі `dQᵢ/d|Uᵢ|` множник при `Bᵢᵢ` — це `|Uᵢ|` (в першому степені), а не `|Uᵢ|²`.
 
-> **Нотатка від професора: Чому метод Ньютона "дорогий"?**
+> **Нотатка: Чому метод Ньютона "дорогий"?**
 >
 > Зверніть увагу на формули для діагональних елементів. Вони залежать від `Pᵢ_розр` та `Qᵢ_розр` - розрахункових потужностей на **поточній ітерації**. Це означає, що матриця Якобі **не є константою**. Її потрібно повністю перераховувати на кожному кроці ітераційного процесу. Саме ця операція (формування та розв'язання системи з матрицею Якобі) є найбільш обчислювально затратною в усьому алгоритмі.
 
@@ -65,7 +65,6 @@ J  =  |-----------------|
 Код демонструє **формування повної матриці Якобі** для 3-вузлової схеми в заданому стані.
 
 ```csharp
-// Program.cs
 using System;
 using System.Numerics;
 using System.Collections.Generic;
@@ -89,7 +88,7 @@ public class Program
         Y[0, 2] = Y[2, 0] = -y13;
         Y[1, 2] = Y[2, 1] = -y23;
 
-        var U = Vector<Complex>.Build.DenseOfArray(new[] {
+        var U = MathNet.Numerics.LinearAlgebra.Vector<Complex>.Build.DenseOfArray(new[] {
             Complex.FromPolarCoordinates(1.02, 0), // U1 (балансуючий)
             Complex.FromPolarCoordinates(1.0, 0),  // U2 (PQ)
             Complex.FromPolarCoordinates(1.0, 0)   // U3 (PQ)
@@ -108,18 +107,19 @@ public class Program
     /// <param name="yBus">Y-матриця системи.</param>
     /// <param name="voltages">Вектор напруг на поточній ітерації.</param>
     /// <param name="pqNodeIndices">Список індексів PQ-вузлів.</param>
-    public static Matrix<double> BuildJacobian(Matrix<Complex> yBus, Vector<Complex> voltages, List<int> pqNodeIndices)
+    public static Matrix<double> BuildJacobian(Matrix<Complex> yBus, MathNet.Numerics.LinearAlgebra.Vector<Complex> voltages, List<int> pqNodeIndices)
     {
         int n = pqNodeIndices.Count; // Кількість PQ-вузлів, розмір Якобіана буде 2n x 2n
         var jacobian = Matrix<double>.Build.Dense(2 * n, 2 * n);
 
         // Перед розрахунком похідних нам потрібні P_calc та Q_calc для діагональних елементів.
         // Розрахуємо їх один раз для всіх вузлів.
-        var calculatedPowers = Vector<Complex>.Build.Dense(voltages.Count);
+        var calculatedPowers = MathNet.Numerics.LinearAlgebra.Vector<Complex>.Build.Dense(voltages.Count);
+
         for (int k = 0; k < voltages.Count; k++)
         {
             Complex currentInjection = yBus.Row(k).DotProduct(voltages);
-            calculatedPowers[k] = voltages[k] * currentInjection.Conjugate();
+            calculatedPowers[k] = voltages[k] * Complex.Conjugate(currentInjection);
         }
 
         // Цикл по рядках блоків Якобіана (відповідають рівнянням для вузлів i)
